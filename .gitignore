@@ -1,0 +1,4 @@
+phpliteadmin.php
+phpliteadmin.config.php
+*.db
+*.sqlite
