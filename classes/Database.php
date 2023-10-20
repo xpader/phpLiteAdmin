@@ -82,12 +82,12 @@ class Database
 			}
 		}
 	}
-	
+
 	public function getError($complete_msg = false)
 	{
 		global $lang, $debug;
 		$error = "unknown";
-		
+
 		if($this->alterError!='')
 		{
 			$error = $this->alterError;
@@ -106,7 +106,7 @@ class Database
 		{
 			$error = sqlite_error_string($this->db->lastError());
 		}
-		
+
 		if($complete_msg)
 		{
 			$error = $lang['err'].": ".htmlencode($error);
@@ -117,7 +117,7 @@ class Database
 
 		if($debug)
 			$error .= $this->getDebugOutput();
-		
+
 		return $error;
 	}
 
@@ -125,7 +125,7 @@ class Database
 	{
 		return ($this->debugOutput != "" ? "<hr /><strong>DEBUG:</strong><br />".$this->debugOutput : $this->debugOutput);
 	}
-	
+
 	public function showError()
 	{
 		global $lang;
@@ -168,12 +168,12 @@ class Database
 			}
 		}
 		echo "<p>See ".PROJECT_INSTALL_LINK." for help.</p>";
-		
+
 		$this->print_db_list();
 
 		echo "</div>";
 	}
-	
+
 	// print the list of databases
 	public function print_db_list()
 	{
@@ -187,13 +187,13 @@ class Database
 				$i++;
 				$name = $database['name'];
 				if(mb_strlen($name)>25)
-					$name = "...".mb_substr($name, mb_strlen($name)-22, 22); 
+					$name = "...".mb_substr($name, mb_strlen($name)-22, 22);
 				echo '[' . ($database['readable'] ? 'r':' ' ) . ($database['writable'] && $database['writable_dir'] ? 'w':' ' ) . ']&nbsp;';
-				
+
 				echo $params->getLink(array('database'=>$database['path'], 'table'=>null), htmlencode($name), ($database == $currentDB? 'active_db': '') );
 				echo "&nbsp;&nbsp;";
 				echo $params->getLink(array('download'=>$database['path'], 'table'=>null, 'token'=>$_SESSION[COOKIENAME.'token']), '[&darr;]', '', $lang['backup']);
-				
+
 				if($i<sizeof($databases))
 					echo "<br/>";
 			}
@@ -214,7 +214,7 @@ class Database
 			echo "<noscript><input type='submit' value='".$lang['go']."' class='btn'></noscript>";
 			echo "</form>";
 		}
-		echo "</fieldset>";	
+		echo "</fieldset>";
 	}
 
 	public function __destruct()
@@ -228,7 +228,7 @@ class Database
 	{
 		return $this->type;
 	}
-	
+
 	// get the version of the SQLite library
 	public function getSQLiteVersion()
 	{
@@ -265,7 +265,7 @@ class Database
 	{
 		if(file_exists($this->data['path'])) //make sure file exists before getting its contents
 		{
-			$content = strtolower(file_get_contents($this->data['path'], NULL, NULL, 0, 40)); //get the first 40 characters of the database file
+			$content = strtolower(file_get_contents($this->data['path'], false, NULL, 0, 40)); //get the first 40 characters of the database file
 			$p = strpos($content, "** this file contains an sqlite 2"); //this text is at the beginning of every SQLite2 database
 			if($p!==false) //the text is found - this is version 2
 				return 2;
@@ -311,17 +311,17 @@ class Database
 		$result = $this->select("SELECT `type` FROM `sqlite_master` WHERE `name`=" . $this->quote($table), 'assoc');
 		return $result['type'];
 	}
-	
+
 	public function getTableInfo($table)
 	{
 		return $this->selectArray("PRAGMA table_info(".$this->quote_id($table).")");
 	}
-	
+
 	// returns the list of tables (opt. incl. views) as
 	// array( Tablename => tableType ) with tableType being 'view' or 'table'
 	public function getTables($alsoViews=true, $alsoInternal=false, $orderBy='name', $orderDirection='ASC')
 	{
-		$query = "SELECT name, type FROM sqlite_master " 
+		$query = "SELECT name, type FROM sqlite_master "
 			. "WHERE (type='table'".($alsoViews?" OR type='view'":"").") "
 			. "AND name!='' ".($alsoInternal? "":" AND name NOT LIKE 'sqlite_%' ")
 			. "ORDER BY ".$this->quote_id($orderBy)." ".$orderDirection;
@@ -333,7 +333,7 @@ class Database
 		}
 		return $list;
 	}
-	
+
 	// returns an array of all tables and their columns as
 	// array( tablename => array(columName) )
 	public function getTableDefinitions()
@@ -350,7 +350,7 @@ class Database
 		}
 		return $result;
 	}
-	
+
 	public function close()
 	{
 		if($this->type=="PDO")
@@ -464,7 +464,7 @@ class Database
 	{
 		$result = $this->query($query);
 		//make sure the result is valid
-		if($result=== false || $result===NULL) 
+		if($result=== false || $result===NULL)
 			return NULL;		// error
 		if(!is_object($result)) // no rows returned
 			return array();
@@ -509,12 +509,12 @@ class Database
 			return $result->fetchAll($mode);
 		}
 	}
-	
+
 	//returns an array of the next row in $result
 	public function fetch($result, $mode="both")
 	{
 		//make sure the result is valid
-		if($result=== false || $result===NULL) 
+		if($result=== false || $result===NULL)
 			return NULL;		// error
 		if(!is_object($result)) // no rows returned
 			return array();
@@ -552,11 +552,11 @@ class Database
 			return $result->fetch($mode);
 		}
 	}
-	
+
 	public function getColumnName($result, $colNum)
 	{
 		//make sure the result is valid
-		if($result=== false || $result===NULL || !is_object($result)) 
+		if($result=== false || $result===NULL || !is_object($result))
 			return "";		// error or no rows returned
 		if($this->type=="PDO")
 		{
@@ -573,7 +573,7 @@ class Database
 		}
 	}
 
-	
+
 	// SQlite supports multiple ways of surrounding names in quotes:
 	// single-quotes, double-quotes, backticks, square brackets.
 	// As sqlite does not keep this strict, we also need to be flexible here.
@@ -592,7 +592,7 @@ class Database
 				$posessive='+';
 			else
 				$posessive='';
-			
+
 			$nameSingle   = ($notAllowedName!==false?"(?!".$notAllowedName."')":"")."(?:[^']$name+|'')$name".$posessive;
 			$nameDouble   = ($notAllowedName!==false?"(?!".$notAllowedName."\")":"")."(?:[^\"]$name+|\"\")$name".$posessive;
 			$nameBacktick = ($notAllowedName!==false?"(?!".$notAllowedName."`)":"")."(?:[^`]$name+|``)$name".$posessive;
@@ -602,14 +602,14 @@ class Database
 		else
 		{
 			if($preg_quote) $name = preg_quote($name,"/");
-			
+
 			$nameSingle = str_replace("'","''",$name);
 			$nameDouble = str_replace('"','""',$name);
 			$nameBacktick = str_replace('`','``',$name);
 			$nameSquare = str_replace(']',']]',$name);
 			$nameNo = $name;
 		}
-		
+
 		$preg =	"(?:'".$nameSingle."'|".   // single-quote surrounded or not in quotes (correct SQL for values/new names)
 				$nameNo."|".               // not surrounded (correct SQL if not containing reserved words, spaces or some special chars)
 				"\"".$nameDouble."\"|".    // double-quote surrounded (correct SQL for identifiers)
@@ -637,7 +637,7 @@ class Database
 		}
 		return $name;
 	}
-	
+
 	// Returns the last PREG error as a string, '' if no error occured
 	private function getPregError()
 	{
@@ -650,11 +650,11 @@ class Database
 			case PREG_RECURSION_LIMIT_ERROR: return 'Recursion limit was exhausted!';
 			case PREG_BAD_UTF8_ERROR: return 'Bad UTF8 error!';
 			// PREG_BAD_UTF8_OFFSET_ERROR is introduced in PHP 5.3.0, which is not yet required by PLA, so we use its value 5 instead so long
-			case 5: return 'Bad UTF8 offset error!'; 
+			case 5: return 'Bad UTF8 offset error!';
 			default: return 'Unknown Error';
-		} 
+		}
 	}
-	
+
 	// function that is called for an alter table statement in a query
 	// code borrowed with permission from http://code.jenseng.com/db/
 	// this has been completely debugged / rewritten by Christopher Kramer
@@ -701,13 +701,13 @@ class Database
 					{
 						$this->alterError = $errormsg . ' could not detect new view name. It needs to be in single or double quotes.';
 						if($debug) $this->debugOutput .= "ERROR: could not detect new view name<hr />";
-						return false;	
+						return false;
 					}
 					$dropoldSQL = 'DROP VIEW '.$this->quote_id($table);
 					$createnewSQL = 'CREATE VIEW '.$this->quote_id($newname).' '.$origsql_no_create;
 					$alter_transaction = 'BEGIN; ' . $dropoldSQL .'; '. $createnewSQL . '; ' . 'COMMIT;';
 					if($debug) $this->debugOutput .= $alter_transaction;
-					return $this->multiQuery($alter_transaction); 
+					return $this->multiQuery($alter_transaction);
 				}
 				else
 				{
@@ -736,7 +736,7 @@ class Database
 						$this->debugOutput .= "preg_alter_part=(".$preg_alter_part.")<br />";
 					preg_match_all($preg_alter_part,$alterdefs,$matches);
 					$defs = $matches[0];
-					
+
 					$result_oldcols = $this->getTableInfo($table);
 					$newcols = array();
 					$coltypes = array();
@@ -773,12 +773,12 @@ class Database
 							."(?:"												// this is either
 								."(?:\s+\((.+)\)\s*$)"							// anything in brackets (for ADD PRIMARY KEY)
 																				// then $matches[2] is what there is in brackets
-							."|"												// OR: 
+							."|"												// OR:
 								."\s+(".$this->sqlite_surroundings_preg("+",false," \"'\[`").")"//  $matches[3]: (first) column name, possibly including quotes
 																				// (may be quoted in any type of quotes)
 																				// in case of RENAME TO, it is the new a table name
 								."("											// $matches[4]: anything after the column name
-									."(?:\s+(".$this->sqlite_surroundings_preg("+",false," \"'\[`")."))?"	// $matches[5] (optional): a second column name possibly including quotes 
+									."(?:\s+(".$this->sqlite_surroundings_preg("+",false," \"'\[`")."))?"	// $matches[5] (optional): a second column name possibly including quotes
 																				//		(may be quoted in any type of quotes)
 									."\s*"
 									."((?:[A-Z]+\s*)+(?:\(\s*[+-]?\s*[0-9]+(?:\s*,\s*[+-]?\s*[0-9]+)?\s*\))?)?\s*"	// $matches[6] (optional): a type name
@@ -802,7 +802,7 @@ class Database
 						}
 						$action = str_replace(' column','',strtolower($matches[1]));
 						if($action == 'add primary key' && isset($matches[2]) && $matches[2]!='')
-							$column = $matches[2];	
+							$column = $matches[2];
 						elseif($action == 'drop primary key')
 							$column = '';	// DROP PRIMARY KEY has no column definition
 						elseif(isset($matches[3]) && $matches[3]!='')
@@ -832,7 +832,7 @@ class Database
 									"(?:".
 										"$preg_column_definiton,\s*+".		// column definition + comma
 									")*".								// there might be any number of such columns here
-									$preg_column_definiton.				// last column definition 
+									$preg_column_definiton.				// last column definition
 								")".			// end of group $2
 								",\s*+"			// the last comma of the last column before the column to change. Do not keep it!
 							.")?";    // there might be no columns before
@@ -841,7 +841,7 @@ class Database
 												// we could remove the comma using $6 instead of $5, but then we might have no comma at all.
 												// Keeping it leaves a problem if we drop the first column, so we fix that case in another regex.
 						$table_new = $table;
-	
+
 						switch($action)
 						{
 							case 'add':
@@ -973,7 +973,7 @@ class Database
 													// replace this part (we want to change this column)
 													// group $3 (column) $4  (constraints before) and $5 (constraints after) contain the part to keep
 									$preg_pattern_change = "/^".$preg_create_table.$preg_columns_before.$preg_column_to_change.$preg_columns_after."\s*\\)\s*$/si";
-		
+
 									// replace the column definiton in the CREATE TABLE statement
 									$newSQL = preg_replace($preg_pattern_change, '$1$2,$3$4$5$6)', $createtesttableSQL);
 									// remove comma at the beginning if the first column is changed
@@ -984,7 +984,7 @@ class Database
 										$this->debugOutput .= "preg_column_to_change=(".$preg_column_to_change.")<hr /><br />";
 										$this->debugOutput .= $createtesttableSQL."<hr /><br />";
 										$this->debugOutput .= $newSQL."<hr /><br />";
-	
+
 										$this->debugOutput .= $preg_pattern_change."<hr /><br />";
 									}
 									if($newSQL!=$createtesttableSQL && $newSQL!="") // pattern did match, so PRIMARY KEY constraint removed :)
@@ -1002,7 +1002,7 @@ class Database
 								} else
 									// TODO: Try removing table constraint
 									return false;
-								
+
 								break;
 							default:
 								if($debug) $this->debugOutput .= 'ERROR: unknown alter operation!<hr /><br />';
@@ -1033,7 +1033,7 @@ class Database
 			$alter_transaction .= $copytonewsql.'; ';        //copy back to original table
 			$alter_transaction .= $droptempsql.'; ';         //drop temp table
 
-			$preg_index="/^\s*(CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:".$this->sqlite_surroundings_preg("+",false," '\"\[`")."\s*)*ON\s+)(".$this->sqlite_surroundings_preg($table).")(\s*\((?:".$this->sqlite_surroundings_preg("+",false," '\"\[`")."\s*)*\)\s*)\s*$/i";				
+			$preg_index="/^\s*(CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:".$this->sqlite_surroundings_preg("+",false," '\"\[`")."\s*)*ON\s+)(".$this->sqlite_surroundings_preg($table).")(\s*\((?:".$this->sqlite_surroundings_preg("+",false," '\"\[`")."\s*)*\)\s*)\s*$/i";
 			foreach($recreateQueries as $recreate_query)
 			{
 				if($recreate_query['type']=='index')
@@ -1044,14 +1044,14 @@ class Database
 					{
 						if(!isset($newcols[$indexInfo['name']]))
 						{
-							if($debug) $this->debugOutput .= 'Not recreating the following index: <hr /><br />'.htmlencode($recreate_query['sql']).'<hr /><br />'; 
+							if($debug) $this->debugOutput .= 'Not recreating the following index: <hr /><br />'.htmlencode($recreate_query['sql']).'<hr /><br />';
 							// Index on a column that was dropped. Skip recreation.
 							continue 2;
 						}
 					}
 				}
 				// TODO: In case we renamed a column on which there is an index, we need to recreate the index with the column name adjusted.
-				
+
 				// recreate triggers / indexes
 				if($table == $table_new)
 				{
@@ -1074,7 +1074,7 @@ class Database
 								$alter_transaction .= $recreate_query['sql'].';';
 							}
 							break;
-							
+
 						case 'trigger':
 							// TODO: IMPLEMENT
 							$alter_transaction .= $recreate_query['sql'].';';
@@ -1104,7 +1104,7 @@ class Database
 		return $success;
 	}
 
-	
+
 	// checks whether a table has a primary key
 	public function hasPrimaryKey($table)
 	{
@@ -1115,21 +1115,21 @@ class Database
 			{
 				return true;
 			}
-		 
+
 		}
 		return false;
 	}
-	
+
 	// Returns an array of columns by which rows can be uniquely adressed.
 	// For tables with a rowid column, this is always array('rowid')
-	// for tables without rowid, this is an array of the primary key columns. 
+	// for tables without rowid, this is an array of the primary key columns.
 	public function getPrimaryKey($table)
 	{
 		$primary_key = array();
 		// check if this table has a rowid
 		$getRowID = $this->select('SELECT ROWID FROM '.$this->quote_id($table).' LIMIT 0,1');
 		if(isset($getRowID[0]))
-			// it has, so we prefer addressing rows by rowid			
+			// it has, so we prefer addressing rows by rowid
 			return array('rowid');
 		else
 		{
@@ -1146,7 +1146,7 @@ class Database
 		}
 		return $primary_key;
 	}
-	
+
 	// selects a row by a given key $pk, which is an array of values
 	// for the columns by which a row can be adressed (rowid or primary key)
 	public function wherePK($table, $pk)
@@ -1218,7 +1218,7 @@ class Database
 		else
 			return true;
 	}
-	
+
 	public function prepareQuery($query)
 	{
 		if($this->type=='PDO' || $this->type=='SQLite3')
@@ -1231,7 +1231,7 @@ class Database
 			return null;
 		}
 	}
-	
+
 	public function bindValue($handle, $parameter, $value, $type)
 	{
 		if($this->type=='SQLite3')
@@ -1283,7 +1283,7 @@ class Database
 			return false;
 
 	}
-	
+
 	public function executePrepared($handle, $fetchResult=false)
 	{
 		if($this->type=='PDO')
@@ -1327,7 +1327,7 @@ class Database
 			return false;
 		}
 	}
-	
+
 	//import csv
 	//returns true on success, error message otherwise
 	public function import_csv($filename, $table, $field_terminate, $field_enclosed, $field_escaped, $null, $fields_in_first_row)
@@ -1344,7 +1344,7 @@ class Database
 		if($field_terminate=='\t') $field_terminate = "\t";
 		while($csv_handle!==false && !feof($csv_handle))
 		{
-			$csv_data = fgetcsv($csv_handle, 0, $field_terminate, $field_enclosed, $field_escaped); 
+			$csv_data = fgetcsv($csv_handle, 0, $field_terminate, $field_enclosed, $field_escaped);
 			if(is_array($csv_data) && ($csv_data[0] != NULL || count($csv_data)>1))
 			{
 				$csv_number_of_rows++;
@@ -1365,13 +1365,13 @@ class Database
 								$csv_insert .= ", ";
 						}
 						$csv_insert .=");";
-						
+
 					} else {
 						$number_of_cols = count($this->getTableInfo($table));
 					}
 					if($fields_in_first_row)
 						continue;
-				} 
+				}
 				$csv_insert .= "INSERT INTO ".$this->quote_id($table)." VALUES (";
 				for($csv_col = 0; $csv_col < $number_of_cols; $csv_col++)
 				{
@@ -1387,7 +1387,7 @@ class Database
 						$csv_insert .= ",";
 				}
 				$csv_insert .= ");\n";
-				
+
 				if($csv_number_of_rows % 5000 == 0)
 				{
 					$csv_insert .= "COMMIT;\nBEGIN;\n";
@@ -1407,7 +1407,7 @@ class Database
 				return true;
 		}
 	}
-	
+
 	//export csv
 	public function export_csv($tables, $field_terminate, $field_enclosed, $field_escaped, $null, $crlf, $fields_in_first_row)
 	{
@@ -1464,7 +1464,7 @@ class Database
 						$cell = str_replace($field_enclosed,$field_escaped.$field_enclosed,$cell);
 						// do not enclose NULLs
 						if($cell == NULL)
-							echo $null;  
+							echo $null;
 						else
 							echo $field_enclosed.$cell.$field_enclosed;
 						// do not terminate the last column!
@@ -1477,7 +1477,7 @@ class Database
 			}
 		}
 	}
-	
+
 	//export sql
 	public function export_sql($tables, $drop, $structure, $data, $transaction, $comments, $echo=true)
 	{
@@ -1485,10 +1485,10 @@ class Database
 		@set_time_limit(-1);
 		// we use \r\n if the _client_ OS is windows (as the exported file is downloaded to the client), \n otherwise
 		$crlf = (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Win')!==false ? "\r\n" : "\n");
-		
+
 		if(!$echo)
 			ob_start();
-		
+
 		if($comments)
 		{
 			echo "----".$crlf;
@@ -1575,7 +1575,7 @@ class Database
 		}
 		if($transaction)
 			echo "COMMIT;".$crlf;
-			
+
 		if(!$echo) {
 			$o = ob_get_contents();
 			ob_end_clean();

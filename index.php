@@ -467,7 +467,7 @@ if ($auth->isAuthorized())
 					$arr[$i] = $directory.DIRECTORY_SEPARATOR.$arr[$i];
 
 				if(@!is_file($arr[$i])) continue;
-				$con = file_get_contents($arr[$i], NULL, NULL, 0, 60);
+				$con = file_get_contents($arr[$i], false, NULL, 0, 60);
 				if(strpos($con, "** This file contains an SQLite 2.1 database **", 0)!==false || strpos($con, "SQLite format 3", 0)!==false)
 				{
 					$databases[$j]['path'] = $arr[$i];
@@ -802,7 +802,7 @@ if ($auth->isAuthorized())
 			case "table_empty":
 				if(isset($_GET['pk']))
 					$tables = json_decode($_GET['pk']);
-				else 
+				else
 					$tables=array($_GET['table']);
 				$query1 = "BEGIN; ";
 				foreach($tables as $table)
@@ -845,7 +845,7 @@ if ($auth->isAuthorized())
 			case "table_drop":
 				if(isset($_GET['pk']))
 					$tables = json_decode($_GET['pk']);
-				else 
+				else
 					$tables=array($_GET['table']);
 				$query1 = "BEGIN; ";
 				foreach($tables as $table)
@@ -878,15 +878,15 @@ if ($auth->isAuthorized())
 			case "table_rename":
 				$query = "ALTER TABLE ".$db->quote_id($_GET['table'])." RENAME TO ".$db->quote($_POST['newname']);
 				$type = $db->getTypeOfTable($_GET['table']);
-				if($db->getVersion()==3 && $type=='table' // SQLite 3 can rename tables, not views 
+				if($db->getVersion()==3 && $type=='table' // SQLite 3 can rename tables, not views
 					// In SQL(ite) table names are case-insensitve, so changing is not supported by SQLite.
 					// But table names are stored and displayed case sensitive, so we use the workaround for case sensitive renaming.
 					&& !($_GET['table'] !== $_POST['newname'] && strtolower($_GET['table']) === strtolower($_POST['newname']))
 					)
 					$result = $db->query($query, true);
 				else
-					// Workaround can rename tables of sqlite2 and views of both sqlite versions. Can also do case sensitive renames. 
-					$result = $db->query($query, false); 
+					// Workaround can rename tables of sqlite2 and views of both sqlite versions. Can also do case sensitive renames.
+					$result = $db->query($query, false);
 				if($result === false)
 					$completed = $db->getError(true);
 				else
@@ -1784,7 +1784,7 @@ if(isset($_GET['action']) && !isset($_GET['confirm']))
 	switch($_GET['action'])
 	{
 	//- Table actions
-	
+
 		//- Confirm table action (=table_confirm)
 		case "table_confirm":
 			if(isset($_GET['check']))
@@ -3069,7 +3069,7 @@ if(isset($_GET['action']) && !isset($_GET['confirm']))
 					echo $lang['create_index2']." <input type='text' name='numcolumns' style='width:30px;' value='1'/> ".$lang['cols']." <input type='submit' value='".$lang['go']."' name='addindex' class='btn'/>";
 					echo "</div>";
 					echo "</form>";
-	
+
 					echo $params->getForm(array('action'=>'trigger_create'),'get');
 					echo "<br/><div class='tdheader'>";
 					echo $lang['create_trigger2']." <input type='submit' value='".$lang['go']."' name='addindex' class='btn'/>";
